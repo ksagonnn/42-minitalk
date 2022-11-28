@@ -1,33 +1,49 @@
-SERVER = server
+#	GENERAL CONFIG & FLAGS
+# programme compilateur C
+CC := cc
 
-CLIENT = client
+# Extra flags pour le compilateur C
+CFLAGS := -Wall -Wextra -Werror
 
-LIBFT = ./libft/libft.a
+RM := /bin/rm -f
 
-HEADER = includes/minitalk.h
+NAME_SERVER := server
+NAME_CLIENT := client
 
-CFLAGS = -Wall -Werror -Wextra
+SRC_SERVER := server.c minitalk.c
+SRC_CLIENT := client.c minitalk.c
 
-all: $(LIBFT) $(CLIENT) $(SERVER) $(HEADER)
+SRC_SERVER_BONUS := server_bonus.c minitalk_bonus.c
+SRC_CLIENT_BONUS := client_bonus.c minitalk_bonus.c
 
-$(SERVER): src/server.c $(HEADER)
-	@gcc src/server.c $(LIBFT) -0 $@
-	@echo $@ ready
+INCLUDES := -I. -Ilibft
 
-$(CLIENT): src/client.c $(HEADER)
-	@gcc $(CFLAGS) src/client.c $(LIBFT) -o $@
-	@echo $@ ready
+LIBFT := ./libft/libft.a
+LIBFT_PATH := ./libft
 
-$(LIBFT):
-	@make -C ./libft
+#	RULES
+
+all: $(NAME_SERVER) $(NAME_CLIENT)
+
+$(NAME_SERVER): $(LIBFT)
+	$(CC) $(CFLAGS) $(SRC_SERVER) $(LIBFT) -o $(NAME_SERVER)
+
+$(NAME_CLIENT): $(LIBFT)
+	$(CC) $(CFLAGS) $(SRC_CLIENT) $(LIBFT) -o $(NAME_CLIENT)
+
+# Make libft
+$(LIBFT): $(shell make -C $(LIBFT_PATH) -q libft.a)
+	make -C $(LIBFT_PATH)
 
 clean:
-	@make clean -C ./libft
 
+# Clean fichiers objets (*.o) et binaires
 fclean: clean
-	rm -rf $(SERVER) $(CLIENT)
-	make fclean -C ./libft
+	$(RM) $(NAME_SERVER) $(NAME_CLIENT)
 
+# Clean fichiers objets (*.o) et binaires; 
+# crée à nouveau le fichier binaire et génère la librairie et l'indexe
 re: fclean all
 
-.PHONY: all re clean fclean
+# .PHONY pour pas que ça relink
+.PHONY: all clean fclean re bonus rebonus
